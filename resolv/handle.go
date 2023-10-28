@@ -4,10 +4,28 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"reflect"
+
+	config "github.com/go-shecan/configs"
 )
 
-func GetResolvFile() (*os.File, error) {
-	resolvFile, err := os.OpenFile("", os.O_APPEND|os.O_RDWR|os.O_CREATE|os.O_RDONLY, os.ModeAppend)
+var resolvInstance Resolve
+
+func Set(r Resolve) {
+	resolvInstance = r
+}
+func Get() Resolve {
+	return resolvInstance
+}
+
+type Resolve struct {
+	config.DnsServers `json:"dns_servers"`
+	StoreKey          string `json:"store_key"`
+	ResolvPath        string `json:"resolv_path"`
+}
+
+func (r Resolve) GetResolvFile() (*os.File, error) {
+	resolvFile, err := os.OpenFile(r.ResolvPath, os.O_APPEND|os.O_RDWR|os.O_CREATE|os.O_RDONLY, os.ModeAppend)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -23,18 +41,22 @@ func ReadResolvFile(resolvFile *os.File) ([]byte, error) {
 	return nameServers, nil
 }
 
-func ClearResolvFile() error {
-	if err := os.Truncate("", 0); err != nil {
+func (r Resolve) ClearResolvFile() error {
+	if err := os.Truncate(r.ResolvPath, 0); err != nil {
 		return err
 	}
 	return nil
 }
 
-func WriteDnsServersToResolvFile(file *os.File) error {
-	dnsServers := ""
-	_, err := file.WriteString(dnsServers)
-	if err != nil {
-		return err
+func (r Resolve) WriteDnsServersToResolvFile(file *os.File) error {
+	v := reflect.ValueOf(r.DnsServers)
+
+	for i := 0; i < v.NumField(); i++ {
+		_, err := file.WriteString(v.Field(i).String())
+		if err != nil {
+			return err
+		}
 	}
+
 	return nil
 }

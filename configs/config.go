@@ -6,12 +6,13 @@ import (
 	"path/filepath"
 )
 
+type DnsServers struct {
+	Server1 string `json:"server1"`
+	Server2 string `json:"server2"`
+}
 type Config struct {
-	Path       string `json:"db_path"`
-	DnsServers struct {
-		Server1 string `json:"server1"`
-		Server2 string `json:"server2"`
-	} `json:"dns_servers"`
+	DBPath     string `json:"db_path"`
+	DnsServers `json:"dns_servers"`
 	StoreKey   string `json:"store_key"`
 	ResolvPath string `json:"resolv_path"`
 }

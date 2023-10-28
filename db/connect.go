@@ -4,23 +4,36 @@ import (
 	"git.mills.io/prologic/bitcask"
 )
 
-func Connect() (*bitcask.Bitcask, error) {
-	db, error := bitcask.Open("")
+var DBInstance DB
+
+func Set(d DB) {
+	DBInstance = d
+}
+func Get() DB {
+	return DBInstance
+}
+
+type DB struct {
+	db *bitcask.Bitcask
+}
+
+func Connect(dbPath string) (DB, error) {
+	db, error := bitcask.Open(dbPath)
 	if error != nil {
-		return nil, error
+		return DB{}, error
 	}
-	return db, nil
+	return DB{db: db}, nil
 }
 
-func SaveResolvFileState(db *bitcask.Bitcask, nameServers []byte) {
-	db.Put([]byte(""), nameServers)
+func (d DB) SaveResolvFileState(nameServers []byte) {
+	d.db.Put([]byte(""), nameServers)
 }
 
-func GetResolvFileLastState(db *bitcask.Bitcask) ([]byte, error) {
-	allKeys := db.Keys()
+func (d DB) GetResolvFileLastState() ([]byte, error) {
+	allKeys := d.db.Keys()
 	for key := range allKeys {
 		if string(key) == "" {
-			return db.Get(key)
+			return d.db.Get(key)
 		}
 	}
 	return nil, nil
