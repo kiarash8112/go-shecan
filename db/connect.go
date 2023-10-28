@@ -5,7 +5,7 @@ import (
 )
 
 func Connect() (*bitcask.Bitcask, error) {
-	db, error := bitcask.Open("/tmp/db")
+	db, error := bitcask.Open("")
 	if error != nil {
 		return nil, error
 	}
@@ -13,13 +13,13 @@ func Connect() (*bitcask.Bitcask, error) {
 }
 
 func SaveResolvFileState(db *bitcask.Bitcask, nameServers []byte) {
-	db.Put([]byte("resolvFile"), nameServers)
+	db.Put([]byte(""), nameServers)
 }
 
 func GetResolvFileLastState(db *bitcask.Bitcask) ([]byte, error) {
 	allKeys := db.Keys()
 	for key := range allKeys {
-		if string(key) == "resolvFile" {
+		if string(key) == "" {
 			return db.Get(key)
 		}
 	}

@@ -1,0 +1,9 @@
+{
+    "db_path": "/tmp/db",
+    "dns_servers": {
+        "server1": "185.51.200.2",
+        "server2": "178.22.122.100"
+    },
+    "store_key": "resolvFile",
+    "resolv_path": "/etc/resolv.conf"
+}
