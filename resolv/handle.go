@@ -9,17 +9,8 @@ import (
 	config "github.com/go-shecan/configs"
 )
 
-var resolvInstance Resolve
-
-func Set(r Resolve) {
-	resolvInstance = r
-}
-func Get() Resolve {
-	return resolvInstance
-}
-
 type Resolve struct {
-	*config.DnsServers
+	config.DnsServers
 	resolvPath string
 }
 
@@ -59,7 +50,9 @@ func (r Resolve) WriteDnsServersToResolvFile(file *os.File) error {
 	v := reflect.ValueOf(r.DnsServers)
 
 	for i := 0; i < v.NumField(); i++ {
-		_, err := file.WriteString(v.Field(i).String())
+		format := "nameserver " + v.Field(i).String() + "\n"
+		nameServer := fmt.Sprintf(format)
+		_, err := file.WriteString(nameServer)
 		if err != nil {
 			return err
 		}
