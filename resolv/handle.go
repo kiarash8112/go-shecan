@@ -19,13 +19,12 @@ func Get() Resolve {
 }
 
 type Resolve struct {
-	config.DnsServers `json:"dns_servers"`
-	StoreKey          string `json:"store_key"`
-	ResolvPath        string `json:"resolv_path"`
+	*config.DnsServers
+	resolvPath string
 }
 
 func (r Resolve) GetResolvFile() (*os.File, error) {
-	resolvFile, err := os.OpenFile(r.ResolvPath, os.O_APPEND|os.O_RDWR|os.O_CREATE|os.O_RDONLY, os.ModeAppend)
+	resolvFile, err := os.OpenFile(r.resolvPath, os.O_APPEND|os.O_RDWR|os.O_CREATE|os.O_RDONLY, os.ModeAppend)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -33,7 +32,7 @@ func (r Resolve) GetResolvFile() (*os.File, error) {
 	return resolvFile, nil
 }
 
-func ReadResolvFile(resolvFile *os.File) ([]byte, error) {
+func (r Resolve) ReadResolvFile(resolvFile *os.File) ([]byte, error) {
 	nameServers, err := io.ReadAll(resolvFile)
 	if err != nil {
 		return nil, err
@@ -41,8 +40,16 @@ func ReadResolvFile(resolvFile *os.File) ([]byte, error) {
 	return nameServers, nil
 }
 
+func (r Resolve) ResetResolvFileToLastState(file *os.File, lastContents string) error {
+	_, err := file.WriteString(lastContents)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r Resolve) ClearResolvFile() error {
-	if err := os.Truncate(r.ResolvPath, 0); err != nil {
+	if err := os.Truncate(r.resolvPath, 0); err != nil {
 		return err
 	}
 	return nil
