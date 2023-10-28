@@ -49,6 +49,11 @@ func RestoreResolv() error {
 		return err
 	}
 
+	err = resolv.ClearResolvFile()
+	if err != nil {
+		return err
+	}
+
 	err = resolv.ResetResolvFileToLastState(file, string(content))
 	if err != nil {
 		return err
