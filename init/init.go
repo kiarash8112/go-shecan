@@ -10,7 +10,7 @@ import (
 )
 
 func Init() {
-	path, err := filepath.Abs("/dev/goShecan/config.json")
+	path, err := filepath.Abs("/etc/goShecan/config.json")
 	if err != nil {
 		log.Fatal("faild to load configs : ", err)
 	}
