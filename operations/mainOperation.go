@@ -1,9 +1,13 @@
 package operations
 
 import (
+	"log"
+
 	"github.com/go-shecan/db"
 	"github.com/go-shecan/resolv"
 )
+
+var headerSize int = 35
 
 func ReadSaveDeleteDefaultServers_WriteNewServers() error {
 	db := db.Get()
@@ -27,7 +31,9 @@ func ReadSaveDeleteDefaultServers_WriteNewServers() error {
 		return err
 	}
 
-	err = resolv.WriteDnsServersToResolvFile(file)
+	dnsServers, err := resolv.WriteDnsServersToResolvFile(file)
+	log.Println("server changed from", string(content[headerSize:]), "to", dnsServers)
+
 	if err != nil {
 		return err
 	}
@@ -58,6 +64,6 @@ func RestoreResolv() error {
 	if err != nil {
 		return err
 	}
-
+	log.Println("changed to", string(content[headerSize:]))
 	return nil
 }

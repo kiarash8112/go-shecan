@@ -46,7 +46,7 @@ func (r Resolve) ClearResolvFile() error {
 	return nil
 }
 
-func (r Resolve) WriteDnsServersToResolvFile(file *os.File) error {
+func (r Resolve) WriteDnsServersToResolvFile(file *os.File) (config.DnsServers, error) {
 	v := reflect.ValueOf(r.DnsServers)
 
 	for i := 0; i < v.NumField(); i++ {
@@ -54,9 +54,9 @@ func (r Resolve) WriteDnsServersToResolvFile(file *os.File) error {
 		nameServer := fmt.Sprintf(format)
 		_, err := file.WriteString(nameServer)
 		if err != nil {
-			return err
+			return config.DnsServers{}, err
 		}
 	}
 
-	return nil
+	return r.DnsServers, nil
 }
